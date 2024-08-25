@@ -1,0 +1,125 @@
+####<<< Authentication-6 >>>>>>>>>> Passport local strategy session based >>>>>>>>>>>>>>>>>>>>>>>>>>>>
+1. ejs.......................
+      const ejs = require("ejs");
+      app.set("view engine", "ejs");
+
+      //Home page.......
+      app.get("/", (req, res) => {
+        res.render("index");
+      });
+
+  //logout : protected route.......................
+      app.get("/logout", (req, res) => {
+        res.redirect("/profile");
+      });  
+
+2. Passport 2 way .....................
+   @@@ passport Framework.....
+      1. passport main library ( session management )
+         a. passport
+         b. express session 
+      2. strategy- user Authentication.
+         a. local strategy-passport-local
+         b. passport-google
+
+3. //@@@ password - username nomal findig....................
+ app.post("/register", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username });
+    if (user) return res.status(400).send("user is already exists");
+      const newUser = new User(req.body);
+      await newUser.save();
+      res.status(201).redirect("/login");
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+3. package => npm install bcrypt..----- hard finding ......................................
+
+@@@@ //post : register page.................
+app.post("/register", async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.body.username });
+
+    if (user) return res.status(400).send("user already exists.");
+    bcrypt.hash(req.body.password, saltRounds, async function (err, hash) {
+      const newUser = new User({
+        //destracture object.....
+        username: req.body.username,
+        password: hash,
+      });
+      await newUser.save();
+      res.status(201).redirect("/login");
+    });
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+});
+
+5. login...................................... 
+   1. login session create.
+   2. login check password
+
+6. package installaion.......................
+   1. passport-local =>  npm install passport 
+   2.npm install express-session
+
+7. Compatible Session Stores
+   ===>>>> connect-mongo A MongoDB-based session store.
+   ===>>> Install......
+          1. npm install connect-mongo  //const MongoStore = require("connect-mongo");
+          2. yarn add connect-mongo
+          
+8. if (user) return res.status(400).send("user already exists!");
+
+...............................login..............................................
+
+9. loing cookies -- session create => check ..................................
+   ==> then login after => user visit is not login => auto login 
+   ==> session create + passport help Authentication 
+   
+   @@@ package : install........................
+       1. npm install passport
+       2. npm install express-sesion 
+
+   @@@ 1st step:- passport-express-session use...............
+     const passport = require("passport");
+     const session = require("express-session");
+
+   @@@ 2nd steps:- passport-express-session use........// trust first proxy.......
+   app.set("trust proxy", 1);
+   app.use(
+     session({
+       secret: "keyboard cat",
+       resave: false,
+       saveUninitialized: true,
+       /* cookie: { secure: true }, */
+     })
+   );
+
+10. Compatible Session Stores .....................
+    1. Install.......
+       package => npm install connect-mongo
+
+       //passport-express-session use........// trust first proxy.......
+       app.set("trust proxy", 1);
+       app.use(
+         session({
+           secret: "keyboard cat",
+           resave: false,
+           saveUninitialized: true,
+           store: MongoStore.create({
+             mongoUrl: process.env.MONGO_URL, //.env mongodb url input
+             collectionName: "session", //collection name => session
+           }),
+           /* cookie: { secure: true }, */
+         })
+       );
+       @@@ passport installaion.....express-session use ...............
+       app.use(passport.initialize()); // route call initialize.
+       app.use(passport.session()); //passport use exrpess-session.
+
+11. Passport local use  Authentication user Authenticat ki.............
+    1. install package.....................
+       package => npm install passport-local
